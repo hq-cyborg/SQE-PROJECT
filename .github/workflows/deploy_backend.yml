@@ -3,32 +3,35 @@ name: Deploy Backend to Railway
 on:
   push:
     branches:
-      - deployment
+      - deployment  # deploy only on this branch
 
 jobs:
   deploy-backend:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout repo
       - uses: actions/checkout@v3
 
+      # 2️⃣ Setup Node
       - uses: actions/setup-node@v3
         with:
           node-version: '20.9.0'
 
+      # 3️⃣ Install dependencies
       - name: Install backend dependencies
         run: |
           cd backend
           npm install
 
+      # 4️⃣ Install Railway CLI
       - name: Install Railway CLI
         run: npm install -g @railway/cli
 
+      # 5️⃣ Deploy backend
       - name: Deploy backend
         run: |
           cd backend
-          railway login --apiKey $RAILWAY_API_KEY
-          railway link --project $RAILWAY_PROJECT_ID
           railway up --branch deployment --env production
         env:
           RAILWAY_API_KEY: ${{ secrets.RAILWAY_API_KEY }}
