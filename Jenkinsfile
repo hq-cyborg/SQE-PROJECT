@@ -23,7 +23,6 @@ pipeline {
             steps {
                 echo 'Starting backend on port 8888...'
                 dir('backend') {
-                    // Start backend without blocking Jenkins
                     bat 'start "" cmd /c "npm run dev"'
                 }
             }
@@ -51,7 +50,7 @@ pipeline {
         stage('Run Cypress Tests') {
             steps {
                 echo 'Running Cypress tests...'
-                dir('cypress') {
+                dir('.') {   // 👈 Run from ROOT where cypress.config.js exists
                     bat 'npx cypress run'
                 }
             }
