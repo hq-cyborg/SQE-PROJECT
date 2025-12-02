@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - deployment
+    
 
 jobs:
   deploy-backend:
@@ -13,21 +14,25 @@ jobs:
       # 1️⃣ Checkout code
       - uses: actions/checkout@v3
 
-      # 2️⃣ Setup Node
+      # 2️⃣ Setup Node.js
       - uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: '20.9.0'  # match your package.json
 
-      # 3️⃣ Install dependencies
+      # 3️⃣ Install backend dependencies
       - name: Install backend dependencies
         run: |
           cd backend
           npm install
 
-      # 4️⃣ Deploy to Railway
-      - name: Deploy backend via Railway CLI
+      # 4️⃣ Install new Railway CLI
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      # 5️⃣ Deploy backend via Railway CLI
+      - name: Deploy backend
         run: |
-          npm install -g railway
+          cd backend
           railway up --project ${{ secrets.RAILWAY_PROJECT_ID }} --branch main --env production
         env:
           RAILWAY_API_KEY: ${{ secrets.RAILWAY_API_KEY }}
