@@ -3,7 +3,7 @@ name: Deploy Backend to Railway
 on:
   push:
     branches:
-      - deployment  # change this to your deployment branch
+      - deployment
 
 jobs:
   deploy-backend:
@@ -28,11 +28,11 @@ jobs:
       - name: Install Railway CLI
         run: npm install -g @railway/cli
 
-      # 5️⃣ Deploy backend
+      # 5️⃣ Login & deploy
       - name: Deploy backend
         run: |
           cd backend
-          railway up -- --branch deployment --env production
+          railway login --apiKey $RAILWAY_API_KEY
+          railway up --yes
         env:
           RAILWAY_API_KEY: ${{ secrets.RAILWAY_API_KEY }}
-          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
