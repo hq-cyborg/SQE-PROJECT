@@ -2,10 +2,28 @@ pipeline {
     agent any
 
     stages {
+
+        stage('Install Backend Dependencies') {
+            steps {
+                dir('backend') {
+                    bat 'npm install'
+                }
+            }
+        }
+
+        stage('Install Frontend Dependencies') {
+            steps {
+                dir('frontend') {
+                    bat 'npm install'
+                }
+            }
+        }
+
         stage('Start Backend') {
             steps {
                 echo 'Starting backend on port 8888...'
                 dir('backend') {
+                    // Start backend without blocking Jenkins
                     bat 'start "" cmd /c "npm run dev"'
                 }
             }
@@ -42,9 +60,7 @@ pipeline {
         stage('Stop Backend and Frontend') {
             steps {
                 echo 'Stopping backend and frontend...'
-                bat '''
-                taskkill /F /IM node.exe /T
-                '''
+                bat 'taskkill /F /IM node.exe /T'
             }
         }
     }

@@ -23,5 +23,8 @@
   "bugs": {
     "url": "https://github.com/hq-cyborg/frontend/issues"
   },
-  "homepage": "https://github.com/hq-cyborg/frontend#readme"
+  "homepage": "https://github.com/hq-cyborg/frontend#readme",
+  "dependencies": {
+    "module-alias": "^2.2.3"
+  }
 }
