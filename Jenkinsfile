@@ -50,7 +50,7 @@ pipeline {
         stage('Run Cypress Tests') {
             steps {
                 echo 'Running Cypress tests...'
-                dir('.') {   // 👈 Run from ROOT where cypress.config.js exists
+                dir('.') {  // run from ROOT where cypress.config.js exists
                     bat 'npx cypress run'
                 }
             }
@@ -60,6 +60,15 @@ pipeline {
             steps {
                 echo 'Stopping backend and frontend...'
                 bat 'taskkill /F /IM node.exe /T'
+            }
+        }
+
+        stage('Run Frontend Unit Tests') {
+            steps {
+                echo 'Running frontend unit tests (npm test)...'
+                dir('frontend') {    // run Jest/Vitest here
+                    bat 'npm test'
+                }
             }
         }
     }
