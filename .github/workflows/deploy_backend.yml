@@ -32,7 +32,12 @@ jobs:
       - name: Deploy to Railway
         run: |
           cd backend
-          railway link ${{ secrets.RAILWAY_PROJECT_ID }}
+          
+          # First, set the Railway token as environment variable
+          export RAILWAY_TOKEN="${{ secrets.RAILWAY_API_KEY }}"
+          
+          # Link to your Railway project
+          railway link "${{ secrets.RAILWAY_PROJECT_ID }}"
+          
+          # Deploy
           railway up
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_API_KEY }}
