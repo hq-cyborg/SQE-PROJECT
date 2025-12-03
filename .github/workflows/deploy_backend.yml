@@ -28,15 +28,11 @@ jobs:
       - name: Install Railway CLI
         run: npm install -g @railway/cli
 
-      # 5️⃣ Deploy backend
-      - name: Deploy backend
+      # 5️⃣ Deploy to Railway
+      - name: Deploy to Railway
         run: |
           cd backend
-          
-          # Link to Railway project
           railway link ${{ secrets.RAILWAY_PROJECT_ID }}
-          
-          # Deploy
           railway up
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_API_KEY }}
