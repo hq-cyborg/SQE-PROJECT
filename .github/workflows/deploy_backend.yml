@@ -1,26 +1,26 @@
-name: Deploy Backend to Railway
+name: Frontend Test Coverage
 
 on:
   push:
     branches: [deployment]
 
 jobs:
-  deploy:
+  test:
     runs-on: ubuntu-latest
-    container: ghcr.io/railwayapp/cli:latest
-    
+
     steps:
-      - uses: actions/checkout@v3
-      
-      - name: Deploy to Railway
-        run: |
-          # Login to Railway
-          railway login --token $RAILWAY_TOKEN
-          
-          # Change to backend directory (matches your Railway config)
-          cd backend
-          
-          # Deploy with specific service and environment
-          railway up --service=01291715-cc2d-4bbf-87ff-3398468dac8e --environment=6a9a7f18-4ac9-4eab-88c3-842bbeb940a8
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_API_KEY }}
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm install
+
+      - name: Run Vitest tests with coverage
+        working-directory: frontend
+        run: npm test -- --coverage
