@@ -2,42 +2,19 @@ name: Deploy Backend to Railway
 
 on:
   push:
-    branches:
-      - deployment
+    branches: [deployment]
 
 jobs:
-  deploy-backend:
+  deploy:
     runs-on: ubuntu-latest
-
+    container: ghcr.io/railwayapp/cli:latest
+    
     steps:
-      # 1️⃣ Checkout repo
       - uses: actions/checkout@v3
-
-      # 2️⃣ Setup Node
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '20.9.0'
-
-      # 3️⃣ Install backend dependencies
-      - name: Install backend dependencies
-        run: |
-          cd backend
-          npm install
-
-      # 4️⃣ Install Railway CLI
-      - name: Install Railway CLI
-        run: npm install -g @railway/cli
-
-      # 5️⃣ Deploy to Railway
+      
       - name: Deploy to Railway
         run: |
           cd backend
-          
-          # First, set the Railway token as environment variable
-          export RAILWAY_TOKEN="${{ secrets.RAILWAY_API_KEY }}"
-          
-          # Link to your Railway project
-          railway link "${{ secrets.RAILWAY_PROJECT_ID }}"
-          
-          # Deploy
-          railway up
+          railway up --service=01291715-cc2d-4bbf-87ff-3398468dac8e
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_API_KEY }}
