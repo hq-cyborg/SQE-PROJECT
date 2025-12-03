@@ -32,6 +32,11 @@ jobs:
       - name: Deploy backend
         run: |
           cd backend
+          
+          # Link to Railway project
+          railway link ${{ secrets.RAILWAY_PROJECT_ID }}
+          
+          # Deploy
           railway up
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_API_KEY }}
