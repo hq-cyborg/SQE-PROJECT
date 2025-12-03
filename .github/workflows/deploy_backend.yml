@@ -28,16 +28,18 @@ jobs:
       - name: Install Railway CLI
         run: npm install -g @railway/cli
 
-      # 5️⃣ Login & deploy
+      # 5️⃣ Deploy using Railway token directly
       - name: Deploy backend
         run: |
           cd backend
-          # Method 1: Pipe the token to railway login
-          echo "$RAILWAY_TOKEN" | railway login
+          # Set Railway token as environment variable
+          export RAILWAY_TOKEN="${{ secrets.RAILWAY_API_KEY }}"
+          
+          # Option 1: Direct deploy without login
           railway up --yes
           
-          # OR Method 2: Use railway login without piping
-          # railway login --token "$RAILWAY_TOKEN"
+          # OR Option 2: If you have a project ID
+          # railway link --project "${{ secrets.RAILWAY_PROJECT_ID }}"
           # railway up --yes
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_API_KEY }}
