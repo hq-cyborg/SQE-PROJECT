@@ -12,7 +12,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
-      - name: Deploy to Railway
+      - name: Link Railway Project
+        run: |
+          railway link 3e9cf54a-dc44-40f6-9af6-ca950fa73167
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_API_KEY }}
+      
+      - name: Deploy Backend
         run: |
           cd backend
           railway up --service=01291715-cc2d-4bbf-87ff-3398468dac8e
