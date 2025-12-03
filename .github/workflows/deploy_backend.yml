@@ -1,20 +1,26 @@
 name: Deploy Backend to Railway
+
 on:
   push:
     branches: [deployment]
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     container: ghcr.io/railwayapp/cli:latest
+    
     steps:
       - uses: actions/checkout@v3
-      - name: Deploy
+      
+      - name: Deploy to Railway
         run: |
-          # Link to project (will show available projects)
-          railway link
+          # Login to Railway
+          railway login --token $RAILWAY_TOKEN
           
-          # Deploy backend
+          # Change to backend directory (matches your Railway config)
           cd backend
-          railway up
+          
+          # Deploy with specific service and environment
+          railway up --service=01291715-cc2d-4bbf-87ff-3398468dac8e --environment=6a9a7f18-4ac9-4eab-88c3-842bbeb940a8
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_API_KEY }}
