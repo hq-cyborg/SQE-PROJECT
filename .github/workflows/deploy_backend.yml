@@ -13,12 +13,12 @@ jobs:
       # 1️⃣ Checkout repo
       - uses: actions/checkout@v3
 
-      # 2️ Setup Node
+      # 2️⃣ Setup Node
       - uses: actions/setup-node@v3
         with:
           node-version: '20.9.0'
 
-      # 3️ Install backend dependencies
+      # 3️⃣ Install backend dependencies
       - name: Install backend dependencies
         run: |
           cd backend
@@ -32,7 +32,12 @@ jobs:
       - name: Deploy backend
         run: |
           cd backend
-          railway login --apiKey $RAILWAY_API_KEY
+          # Method 1: Pipe the token to railway login
+          echo "$RAILWAY_TOKEN" | railway login
           railway up --yes
+          
+          # OR Method 2: Use railway login without piping
+          # railway login --token "$RAILWAY_TOKEN"
+          # railway up --yes
         env:
-          RAILWAY_API_KEY: ${{ secrets.RAILWAY_API_KEY }}
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_API_KEY }}
