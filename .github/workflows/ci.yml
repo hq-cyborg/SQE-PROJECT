@@ -11,22 +11,23 @@ on:
 jobs:
 
   sonarqube:
-    name: SonarQube
+    name: SonarQube Analysis
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0  # Shallow clones should be disabled for analysis relevance
 
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@6ee3e1a77e2442c0fff008c186d5306742e0fede
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }} # Only needed for self-hosted SonarQube
 
   frontend-test:
     name: Frontend Test Coverage
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
