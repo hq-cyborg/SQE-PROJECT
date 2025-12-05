@@ -1,0 +1,30 @@
+{
+  "name": "idurar-erp-crm",
+  "version": "1.0.0",
+  "description": "<div align=\"center\">\r     <a href=\"https://www.idurarapp.com/\">\r   <img src=\"https://avatars.githubusercontent.com/u/50052356?s=200&v=4\" width=\"128px\" />\r     </a>\r     <h1>Open Source ERP / CRM Accounting Invoice Quote</h1>\r     <p align=\"center\">\r         <p>IDURAR ERP CRM | Simple To Use</p>\r     </p>",
+  "main": "index.js",
+  "directories": {
+    "doc": "doc"
+  },
+  "devDependencies": {
+    "cypress": "^15.7.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hq-cyborg/frontend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/hq-cyborg/frontend/issues"
+  },
+  "homepage": "https://github.com/hq-cyborg/frontend#readme",
+  "dependencies": {
+    "module-alias": "^2.2.3"
+  }
+}
