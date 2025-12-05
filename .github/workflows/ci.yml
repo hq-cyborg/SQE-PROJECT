@@ -43,3 +43,24 @@ jobs:
       - name: Run Vitest tests with coverage
         working-directory: frontend
         run: npm test -- --coverage
+
+  backend-test:
+    name: Backend Test Coverage
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        working-directory: backend
+        run: npm install
+
+      - name: Run backend tests
+        working-directory: backend
+        run: npm test
