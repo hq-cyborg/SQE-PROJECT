@@ -11,19 +11,17 @@ on:
 jobs:
 
   sonarqube:
-    name: SonarQube Analysis
+    name: SonarQube
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for analysis relevance
-
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }} # Only needed for self-hosted SonarQube
-
+          
   frontend-test:
     name: Frontend Test Coverage
     runs-on: ubuntu-latest
