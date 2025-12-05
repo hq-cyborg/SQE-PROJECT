@@ -13,20 +13,16 @@ jobs:
   sonarqube:
     name: SonarQube
     runs-on: windows-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: SonarQube Scan
-        run: |
-          echo "Running SonarQube Scan..."
-          # Run the SonarQube scan but never fail the job
-          sonar-scanner || true
+        uses: SonarSource/sonarqube-scan-action@v6 || true
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-
+          
   frontend-test:
     name: Frontend Test Coverage
     runs-on: ubuntu-latest
