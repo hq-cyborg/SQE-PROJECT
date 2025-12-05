@@ -19,15 +19,14 @@ jobs:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@a6a37e5bf20c4db1e6f3d6c748808653abf23ee4
+        uses: SonarSource/sonarqube-scan-action@6ee3e1a77e2442c0fff008c186d5306742e0fede
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}  # REQUIRED
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
   frontend-test:
     name: Frontend Test Coverage
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
