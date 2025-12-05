@@ -1,4 +1,4 @@
-name: Full CI: Backend + Frontend + Cypress
+name: "Full CI: Backend + Frontend + Cypress"
 
 on:
   push:
@@ -12,27 +12,27 @@ jobs:
     name: Full E2E Pipeline
     runs-on: ubuntu-latest
     steps:
-      # 1️⃣ Checkout code
+      # 1. Checkout code
       - name: Checkout Repo
         uses: actions/checkout@v3
 
-      # 2️⃣ Setup Node.js
+      # 2. Setup Node.js
       - name: Setup Node.js 20
         uses: actions/setup-node@v3
         with:
           node-version: 20
 
-      # 3️⃣ Install backend dependencies
+      # 3. Install backend dependencies
       - name: Install Backend Dependencies
         working-directory: backend
         run: npm install
 
-      # 4️⃣ Install frontend dependencies
+      # 4. Install frontend dependencies
       - name: Install Frontend Dependencies
         working-directory: frontend
         run: npm install
 
-      # 5️⃣ Start backend on port 8080
+      # 5. Start backend on port 8080
       - name: Start Backend
         working-directory: backend
         run: |
@@ -40,7 +40,7 @@ jobs:
           echo "Waiting for backend to be ready..."
           npx wait-on http://localhost:8080
 
-      # 6️⃣ Start frontend on port 3000, connecting to backend 8080
+      # 6. Start frontend on port 3000, connecting to backend 8080
       - name: Start Frontend
         working-directory: frontend
         run: |
@@ -51,7 +51,7 @@ jobs:
           VITE_BACKEND_SERVER: http://localhost:8080
           VITE_FILE_BASE_URL: http://localhost:8080
 
-      # 7️⃣ Run Cypress tests
+      # 7. Run Cypress tests
       - name: Run Cypress E2E Tests
         working-directory: cypress
         run: |
