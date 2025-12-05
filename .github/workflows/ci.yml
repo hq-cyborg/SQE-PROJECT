@@ -22,6 +22,7 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@a6a37e5bf20c4db1e6f3d6c748808653abf23ee4
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}  # REQUIRED
 
   frontend-test:
     name: Frontend Test Coverage
