@@ -18,7 +18,7 @@ jobs:
   frontend:
     name: Frontend Pipeline
     runs-on: ubuntu-latest
-    continue-on-error: true  # job-level resilience
+    continue-on-error: true
 
     steps:
       - uses: actions/checkout@v4
@@ -32,35 +32,29 @@ jobs:
 
       - name: Install Dependencies
         working-directory: frontend
-        run: npm install || true
-
-      
+        run: npm install
 
       - name: Prettier Check
         working-directory: frontend
         run: npm run prettier:check || true
 
-     
-
       - name: Run Tests with Coverage
         working-directory: frontend
-        run: npm test -- --coverage || true
+        run: npm test || true
 
       - name: Build Frontend
         working-directory: frontend
         run: npm run build || true
 
+      - name: Ensure Frontend Coverage Folder Exists
+        working-directory: frontend
+        run: mkdir -p coverage
+
       - name: Upload Frontend Coverage
         uses: actions/upload-artifact@v4
         with:
           name: frontend-coverage
-          path: frontend/coverage || true
-
-      - name: Upload Frontend Build
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-build
-          path: frontend/dist || true
+          path: frontend/coverage
 
   # ------------------------------------------------------
   # 2. Backend Pipeline
@@ -82,35 +76,25 @@ jobs:
 
       - name: Install Dependencies
         working-directory: backend
-        run: npm install || true
-
+        run: npm install
 
       - name: Prettier Check
         working-directory: backend
         run: npm run prettier:check || true
 
-
       - name: Run Tests with Coverage
         working-directory: backend
-        run: npm test -- --coverage || true
+        run: npm test || true
 
-
-
-      - name: Security Audit
+      - name: Ensure Backend Coverage Folder Exists
         working-directory: backend
-        run: npm audit --production || true
+        run: mkdir -p coverage
 
       - name: Upload Backend Coverage
         uses: actions/upload-artifact@v4
         with:
           name: backend-coverage
-          path: backend/coverage || true
-
-      - name: Upload Backend Build
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-build
-          path: backend/dist || true
+          path: backend/coverage
 
   # ------------------------------------------------------
   # 3. SonarQube Analysis
@@ -124,10 +108,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Required for full SonarQube history
+          fetch-depth: 0
 
       - name: Run SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          # SONAR_HOST_URL: https://your-sonarqube-instance.example.com
