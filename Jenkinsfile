@@ -44,7 +44,7 @@ pipeline {
                     dir('backend') {
                         echo "Running backend tests with coverage..."
                         bat 'npm test || exit 0'
-                        bat 'mkdir -p coverage'
+                        bat 'if not exist coverage mkdir coverage'
                     }
                 }
             }
@@ -61,7 +61,7 @@ pipeline {
                             dir('frontend') {
                                 echo "Running frontend tests with coverage..."
                                 bat 'npm run test:coverage || exit 0'
-                                bat 'mkdir -p coverage'
+                                bat 'if not exist coverage mkdir coverage'
                             }
                         }
                     }
