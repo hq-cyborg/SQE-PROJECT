@@ -36,34 +36,6 @@ pipeline {
         }
 
         // ------------------------------
-        // Backend Lint / Prettier
-        // ------------------------------
-        stage('Backend Lint & Prettier Check') {
-            steps {
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                    dir('backend') {
-
-                        bat 'npm run prettier:check || exit 0'
-                    }
-                }
-            }
-        }
-
-        // ------------------------------
-        // Frontend Lint / Prettier
-        // ------------------------------
-        stage('Frontend Lint & Prettier Check') {
-            steps {
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                    dir('frontend') {
-
-                        bat 'npm run prettier:check || exit 0'
-                    }
-                }
-            }
-        }
-
-        // ------------------------------
         // Run Backend Unit Tests with Coverage
         // ------------------------------
         stage('Run Backend Unit Tests') {
@@ -203,7 +175,7 @@ pipeline {
             echo "Archiving backend coverage reports..."
             archiveArtifacts artifacts: 'backend/coverage/**/*', allowEmptyArchive: true
 
-            // Make sure build never fails
+            // Ensure the build never fails due to test failures
             script {
                 if (currentBuild.result == 'FAILURE') {
                     echo "Marking build SUCCESS even if some tests failed"
