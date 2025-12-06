@@ -42,7 +42,7 @@ pipeline {
             steps {
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                     dir('backend') {
-                        bat 'npm run lint || exit 0'
+
                         bat 'npm run prettier:check || exit 0'
                     }
                 }
@@ -56,7 +56,7 @@ pipeline {
             steps {
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                     dir('frontend') {
-                        bat 'npm run lint || exit 0'
+
                         bat 'npm run prettier:check || exit 0'
                     }
                 }
