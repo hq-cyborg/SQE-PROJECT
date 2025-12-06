@@ -103,7 +103,6 @@ pipeline {
                 script {
                     echo "Starting backend in dev mode..."
                     dir('backend') {
-                        // Start backend in a new CMD window
                         bat 'start "" cmd /c "npm run dev"'
                     }
 
@@ -129,18 +128,31 @@ pipeline {
                 }
             }
         }
+
+        // ------------------------------
+        // 5. Archive Build Artifacts
+        // ------------------------------
+        stage('Archive Build Artifacts') {
+            steps {
+                echo "Archiving frontend build artifacts..."
+                archiveArtifacts artifacts: 'frontend/dist/**/*', allowEmptyArchive: true
+
+                echo "Archiving frontend coverage reports..."
+                archiveArtifacts artifacts: 'frontend/coverage/**/*', allowEmptyArchive: true
+
+                echo "Archiving backend artifacts..."
+                archiveArtifacts artifacts: 'backend/**/*', allowEmptyArchive: true
+
+                echo "Archiving backend coverage reports..."
+                archiveArtifacts artifacts: 'backend/coverage/**/*', allowEmptyArchive: true
+            }
+        }
     }
 
     post {
         always {
             echo "Stopping all Node.js processes..."
             bat 'taskkill /F /IM node.exe /T || exit 0'
-
-            echo "Archiving frontend coverage reports..."
-            archiveArtifacts artifacts: 'frontend/coverage/**/*', allowEmptyArchive: true
-
-            echo "Archiving backend coverage reports..."
-            archiveArtifacts artifacts: 'backend/coverage/**/*', allowEmptyArchive: true
 
             echo "Archiving Cypress artifacts..."
             archiveArtifacts artifacts: 'cypress/screenshots/**/*.png', allowEmptyArchive: true
