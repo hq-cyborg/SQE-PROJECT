@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'ubuntu' }
+    agent { label 'windows' }
 
     environment {
         RETRIES = 3
@@ -24,7 +24,7 @@ pipeline {
             steps {
                 dir('backend') {
                     echo "Installing backend dependencies..."
-                    sh 'npm install'
+                    bat 'npm install'
                 }
             }
         }
@@ -33,7 +33,7 @@ pipeline {
             steps {
                 dir('frontend') {
                     echo "Installing frontend dependencies..."
-                    sh 'npm install'
+                    bat 'npm install'
                 }
             }
         }
@@ -42,7 +42,7 @@ pipeline {
             steps {
                 dir('frontend') {
                     echo "Building frontend..."
-                    sh 'npm run build || true'
+                    bat 'npm run build || exit 0'
                 }
             }
         }
@@ -51,7 +51,7 @@ pipeline {
             steps {
                 dir('backend') {
                     echo "Running backend security audit..."
-                    sh 'npm audit --production || true'
+                    bat 'npm audit --production || exit 0'
                 }
             }
         }
@@ -63,10 +63,13 @@ pipeline {
             steps {
                 dir('backend') {
                     echo "Preparing coverage folder..."
-                    sh 'rm -rf coverage && mkdir coverage'
+                    bat '''
+                    IF EXIST coverage rmdir /s /q coverage
+                    mkdir coverage
+                    '''
 
                     echo "Running backend tests with coverage..."
-                    sh 'npm run test:coverage || true'
+                    bat 'npm run test:coverage || exit 0'
                 }
             }
         }
@@ -77,10 +80,13 @@ pipeline {
                     retry(env.RETRIES.toInteger()) {
                         dir('frontend') {
                             echo "Preparing coverage folder..."
-                            sh 'rm -rf coverage && mkdir coverage'
+                            bat '''
+                            IF EXIST coverage rmdir /s /q coverage
+                            mkdir coverage
+                            '''
 
                             echo "Running frontend tests with coverage..."
-                            sh 'npm run test:coverage || true'
+                            bat 'npm run test:coverage || exit 0'
                         }
                     }
                 }
@@ -97,43 +103,39 @@ pipeline {
                     // ---- Start backend ----
                     echo "Starting backend in dev mode..."
                     dir('backend') {
-                        sh 'nohup npm run dev > backend.log 2>&1 &'
+                        bat 'start "" cmd /c "npm run dev > backend.log 2>&1"'
                     }
 
                     // ---- Setup frontend ENV & start ----
                     echo "Setting frontend environment variables..."
                     dir('frontend') {
-                        sh '''
+                        bat '''
                         echo VITE_FILE_BASE_URL=http://localhost:8888/ > .env
                         echo VITE_BACKEND_SERVER=http://localhost:8888/ >> .env
                         echo PROD=false >> .env
                         '''
 
                         echo "Starting frontend in dev mode..."
-                        sh 'nohup npm run dev > frontend.log 2>&1 &'
+                        bat 'start "" cmd /c "npm run dev > frontend.log 2>&1"'
                     }
 
                     // ---- Wait for backend ----
                     echo "Waiting for backend on port 8888..."
-                    sh '''
-                    while ! nc -z localhost 8888; do
-                        echo "Waiting for backend..."
-                        sleep 1
-                    done
+                    bat '''
+                    powershell -Command ^
+                    "while (-not (Test-NetConnection -ComputerName localhost -Port 8888).TcpTestSucceeded) { Start-Sleep -Seconds 1 }"
                     '''
 
                     // ---- Wait for frontend ----
                     echo "Waiting for frontend on port 3000..."
-                    sh '''
-                    while ! nc -z localhost 3000; do
-                        echo "Waiting for frontend..."
-                        sleep 1
-                    done
+                    bat '''
+                    powershell -Command ^
+                    "while (-not (Test-NetConnection -ComputerName localhost -Port 3000).TcpTestSucceeded) { Start-Sleep -Seconds 1 }"
                     '''
 
                     // ---- Run Cypress ----
                     echo "Running Cypress tests..."
-                    sh 'npx cypress run || true'
+                    bat 'npx cypress run || exit 0'
                 }
             }
         }
@@ -159,7 +161,7 @@ pipeline {
     post {
         always {
             echo "Stopping all node processes..."
-            sh 'pkill node || true'
+            bat 'taskkill /F /IM node.exe || exit 0'
 
             echo "Archiving Cypress artifacts..."
             archiveArtifacts artifacts: 'cypress/screenshots/**/*.png', allowEmptyArchive: true
