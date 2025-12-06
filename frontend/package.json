@@ -32,10 +32,10 @@
     "build": "vite build",
     "preview": "vite preview",
     "dev:remote": "cross-env VITE_DEV_REMOTE=remote npm run dev",
-    "test": "vitest",
+    "test": "vitest run --coverage --coverage-report=html",
     "test:ui": "vitest --ui",
-    "coverage": "vitest run --coverage",
-    "test:coverage": "vitest run --coverage",
+    "coverage": "vitest run --coverage --coverage-report=html",
+    "test:coverage": "vitest run --coverage --coverage-report=html",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "prettier:check": "prettier --check .",
     "type-check": "tsc --noEmit"
