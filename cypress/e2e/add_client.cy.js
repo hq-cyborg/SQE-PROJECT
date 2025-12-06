@@ -6,7 +6,7 @@ describe('Add New Client Form - All Fields', () => {
     cy.visit('http://localhost:3000/customer');
     cy.contains('Add New Client').click({ force: true });
 
-    // Alias the visible form
+    // Alias the viible form
     cy.get('.BottomCollapseBox form:visible').as('form');
   });
 
