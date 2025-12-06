@@ -20,17 +20,13 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true  # job-level resilience
 
-    strategy:
-      matrix:
-        node-version: [18, 20]
-
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 20
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
@@ -62,13 +58,13 @@ jobs:
       - name: Upload Frontend Coverage
         uses: actions/upload-artifact@v4
         with:
-          name: frontend-coverage-${{ matrix.node-version }}
+          name: frontend-coverage
           path: frontend/coverage || true
 
       - name: Upload Frontend Build
         uses: actions/upload-artifact@v4
         with:
-          name: frontend-build-${{ matrix.node-version }}
+          name: frontend-build
           path: frontend/dist || true
 
   # ------------------------------------------------------
@@ -79,17 +75,13 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
 
-    strategy:
-      matrix:
-        node-version: [18, 20]
-
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 20
           cache: npm
           cache-dependency-path: backend/package-lock.json
 
@@ -125,13 +117,13 @@ jobs:
       - name: Upload Backend Coverage
         uses: actions/upload-artifact@v4
         with:
-          name: backend-coverage-${{ matrix.node-version }}
+          name: backend-coverage
           path: backend/coverage || true
 
       - name: Upload Backend Build
         uses: actions/upload-artifact@v4
         with:
-          name: backend-build-${{ matrix.node-version }}
+          name: backend-build
           path: backend/dist || true
 
   # ------------------------------------------------------
@@ -141,7 +133,7 @@ jobs:
     name: SonarQube Analysis
     runs-on: ubuntu-latest
     needs: [frontend, backend]
-    continue-on-error: true  # SonarQube errors won’t fail the workflow
+    continue-on-error: true
 
     steps:
       - uses: actions/checkout@v4
