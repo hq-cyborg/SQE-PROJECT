@@ -3,10 +3,10 @@ name: Build & Test & SonarQube
 on:
   push:
     branches:
-      - testing
+      - testing-with-cypress
   pull_request:
     branches:
-      - testing
+      - testing-with-cypress
 
 jobs:
 
