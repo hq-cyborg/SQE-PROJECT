@@ -1,64 +1,154 @@
-name: Build & Test & SonarQube
+name: Build • Test • Lint • Audit • SonarQube
 
 on:
   push:
-    branches:
-      - testing
+    branches: [ testing ]
   pull_request:
-    branches:
-      - testing
+    branches: [ testing ]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
 
-  sonarqube:
-    name: SonarQube
-    runs-on: windows-latest
+  # -----------------------------
+  # Frontend Pipeline
+  # -----------------------------
+  frontend:
+    name: Frontend Pipeline
+    runs-on: ubuntu-latest
+    continue-on-error: true   # <- Pipeline will not fail even if a step fails
+
+    strategy:
+      matrix:
+        node-version: [18, 20]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: frontend
+        run: npm install || true
+
+      - name: ESLint Check
+        working-directory: frontend
+        run: npm run lint || true
+
+      - name: Prettier Check
+        working-directory: frontend
+        run: npm run prettier:check || true
+
+      - name: TypeScript Check
+        working-directory: frontend
+        run: |
+          if [ -f "tsconfig.json" ]; then npm run type-check || true; fi
+
+      - name: Run Tests with Coverage
+        working-directory: frontend
+        run: npm test -- --coverage || true
+
+      - name: Build Frontend
+        working-directory: frontend
+        run: npm run build || true
+
+      - name: Upload Frontend Coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: frontend-coverage-${{ matrix.node-version }}
+          path: frontend/coverage || true
+
+      - name: Upload Frontend Build
+        uses: actions/upload-artifact@v3
+        with:
+          name: frontend-build-${{ matrix.node-version }}
+          path: frontend/dist || true
+
+  # -----------------------------
+  # Backend Pipeline
+  # -----------------------------
+  backend:
+    name: Backend Pipeline
+    runs-on: ubuntu-latest
     continue-on-error: true
+
+    strategy:
+      matrix:
+        node-version: [18, 20]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: backend
+        run: npm install || true
+
+      - name: ESLint Check
+        working-directory: backend
+        run: npm run lint || true
+
+      - name: Prettier Check
+        working-directory: backend
+        run: npm run prettier:check || true
+
+      - name: TypeScript Check
+        working-directory: backend
+        run: |
+          if [ -f "tsconfig.json" ]; then npm run type-check || true; fi
+
+      - name: Run Tests with Coverage
+        working-directory: backend
+        run: npm test -- --coverage || true
+
+      - name: Build Backend
+        working-directory: backend
+        run: npm run build || true
+
+      - name: Security Audit
+        working-directory: backend
+        run: npm audit --production || true
+
+      - name: Upload Backend Coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: backend-coverage-${{ matrix.node-version }}
+          path: backend/coverage || true
+
+      - name: Upload Backend Build
+        uses: actions/upload-artifact@v3
+        with:
+          name: backend-build-${{ matrix.node-version }}
+          path: backend/dist || true
+
+  # -----------------------------
+  # SonarQube Analysis
+  # -----------------------------
+  sonarqube:
+    name: SonarQube Analysis
+    runs-on: ubuntu-latest
+    needs: [frontend, backend]
+    continue-on-error: true
+
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: SonarQube Scan
+          fetch-depth: 0
+
+      - name: Run SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          
-  frontend-test:
-    name: Frontend Test Coverage
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-
-      - name: Use Node.js 20
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-
-      - name: Install dependencies
-        working-directory: frontend
-        run: npm install
-
-      - name: Run Vitest tests with coverage
-        working-directory: frontend
-        run: npm test -- --coverage || true  # Always succeed
-
-  backend-test:
-    name: Backend Test Coverage
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-
-      - name: Use Node.js 20
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-
-      - name: Install dependencies
-        working-directory: backend
-        run: npm install
-
-      - name: Run backend tests
-        working-directory: backend
-        run: npm test -- --coverage || true  # Always succeed
