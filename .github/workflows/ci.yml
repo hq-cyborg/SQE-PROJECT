@@ -147,15 +147,8 @@ jobs:
     needs: [test]
 
     steps:
-      - uses: actions/checkout@v4
-
-      # Frontend Staging → GitHub Pages
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./frontend
-          publish_branch: gh-pages
+      - name: Staging the app
+        run: echo "The app is staged"
 
 
   # ------------------------------------------------------
