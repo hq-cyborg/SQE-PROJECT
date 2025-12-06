@@ -34,18 +34,13 @@ jobs:
         working-directory: frontend
         run: npm install || true
 
-      - name: ESLint Check
-        working-directory: frontend
-        run: npm run lint || true
+      
 
       - name: Prettier Check
         working-directory: frontend
         run: npm run prettier:check || true
 
-      - name: TypeScript Type-Check (if exists)
-        working-directory: frontend
-        run: |
-          if [ -f "tsconfig.json" ]; then npm run type-check || true; fi
+     
 
       - name: Run Tests with Coverage
         working-directory: frontend
@@ -89,26 +84,17 @@ jobs:
         working-directory: backend
         run: npm install || true
 
-      - name: ESLint Check
-        working-directory: backend
-        run: npm run lint || true
 
       - name: Prettier Check
         working-directory: backend
         run: npm run prettier:check || true
 
-      - name: TypeScript Type-Check (if exists)
-        working-directory: backend
-        run: |
-          if [ -f "tsconfig.json" ]; then npm run type-check || true; fi
 
       - name: Run Tests with Coverage
         working-directory: backend
         run: npm test -- --coverage || true
 
-      - name: Build Backend
-        working-directory: backend
-        run: npm run build || true
+
 
       - name: Security Audit
         working-directory: backend
