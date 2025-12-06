@@ -61,15 +61,19 @@ pipeline {
         // ------------------------------
         stage('Run Backend Unit Tests') {
             steps {
-                dir('backend') {
-                    echo "Preparing coverage folder..."
-                    bat '''
-                    IF EXIST coverage rmdir /s /q coverage
-                    mkdir coverage
-                    '''
+                script {
+                    retry(env.RETRIES.toInteger()) {
+                        dir('backend') {
+                            echo "Preparing coverage folder..."
+                            bat '''
+                            IF EXIST coverage rmdir /s /q coverage
+                            mkdir coverage
+                            '''
 
-                    echo "Running backend tests with coverage..."
-                    bat 'npm run test:coverage || exit 0'
+                            echo "Running backend tests with coverage..."
+                            bat 'npm run test:coverage || exit 0'
+                        }
+                    }
                 }
             }
         }
