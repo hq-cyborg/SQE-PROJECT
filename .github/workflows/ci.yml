@@ -38,9 +38,9 @@ jobs:
         working-directory: frontend
         run: npm run prettier:check || true
 
-      - name: Run Tests with Coverage
+      - name: Run Frontend Tests with Coverage
         working-directory: frontend
-        run: npm test || true
+        run: npm run test:coverage || true
 
       - name: Build Frontend
         working-directory: frontend
@@ -82,7 +82,7 @@ jobs:
         working-directory: backend
         run: npm run prettier:check || true
 
-      - name: Run Tests with Coverage
+      - name: Run Backend Tests with Coverage
         working-directory: backend
         run: npm test || true
 
