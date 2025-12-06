@@ -10,22 +10,52 @@ on:
 
 jobs:
 
+  # -------------------------------------------------------
+  # 1. Cypress E2E Tests (runs from repo root)
+  # -------------------------------------------------------
+  cypress-tests:
+    name: Cypress E2E Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install root dependencies
+        run: npm install
+
+      - name: Run Cypress tests
+        run: npx cypress run || true  # Always succeed (initial phase)
+
+  # -------------------------------------------------------
+  # 2. SonarQube Analysis (runs after Cypress)
+  # -------------------------------------------------------
   sonarqube:
     name: SonarQube
     runs-on: windows-latest
     continue-on-error: true
+    needs: cypress-tests
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          
+
+  # -------------------------------------------------------
+  # 3. Frontend Tests
+  # -------------------------------------------------------
   frontend-test:
     name: Frontend Test Coverage
     runs-on: ubuntu-latest
+    needs: cypress-tests
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -41,11 +71,15 @@ jobs:
 
       - name: Run Vitest tests with coverage
         working-directory: frontend
-        run: npm test -- --coverage || true  # Always succeed
+        run: npm test -- --coverage || true
 
+  # -------------------------------------------------------
+  # 4. Backend Tests
+  # -------------------------------------------------------
   backend-test:
     name: Backend Test Coverage
     runs-on: ubuntu-latest
+    needs: cypress-tests
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -61,4 +95,4 @@ jobs:
 
       - name: Run backend tests
         working-directory: backend
-        run: npm test || true  # Always succeed
+        run: npm test || true
