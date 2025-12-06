@@ -1,14 +1,14 @@
 pipeline {
-    agent any
+    agent { label 'ubuntu' }
 
     environment {
-        RETRIES = 3 // Number of times to retry frontend unit tests
+        RETRIES = 3
     }
 
     stages {
 
         // ------------------------------
-        // 1. Source Stage (Code Checkout)
+        // 1. Checkout Code
         // ------------------------------
         stage('Checkout Code') {
             steps {
@@ -18,63 +18,55 @@ pipeline {
         }
 
         // ------------------------------
-        // 2. Build Stage (Dependencies & Compilation)
+        // 2. Install Dependencies
         // ------------------------------
         stage('Install Backend Dependencies') {
             steps {
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                    dir('backend') {
-                        echo "Installing backend dependencies..."
-                        bat 'npm install'
-                    }
+                dir('backend') {
+                    echo "Installing backend dependencies..."
+                    sh 'npm install'
                 }
             }
         }
 
         stage('Install Frontend Dependencies') {
             steps {
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                    dir('frontend') {
-                        echo "Installing frontend dependencies..."
-                        bat 'npm install'
-                    }
+                dir('frontend') {
+                    echo "Installing frontend dependencies..."
+                    sh 'npm install'
                 }
             }
         }
 
         stage('Build Frontend') {
             steps {
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                    dir('frontend') {
-                        echo "Building frontend..."
-                        bat 'npm run build || exit 0'
-                    }
+                dir('frontend') {
+                    echo "Building frontend..."
+                    sh 'npm run build || true'
                 }
             }
         }
 
         stage('Backend Security Audit') {
             steps {
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                    dir('backend') {
-                        echo "Running backend security audit..."
-                        bat 'npm audit --production || exit 0'
-                    }
+                dir('backend') {
+                    echo "Running backend security audit..."
+                    sh 'npm audit --production || true'
                 }
             }
         }
 
         // ------------------------------
-        // 3. Test Stage (Unit Tests & Coverage)
+        // 3. Tests
         // ------------------------------
         stage('Run Backend Unit Tests') {
             steps {
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                    dir('backend') {
-                        echo "Running backend tests with coverage..."
-                        bat 'npm run test:coverage || exit 0'
-                        bat 'if not exist coverage mkdir coverage'
-                    }
+                dir('backend') {
+                    echo "Preparing coverage folder..."
+                    sh 'rm -rf coverage && mkdir coverage'
+
+                    echo "Running backend tests with coverage..."
+                    sh 'npm run test:coverage || true'
                 }
             }
         }
@@ -83,12 +75,12 @@ pipeline {
             steps {
                 script {
                     retry(env.RETRIES.toInteger()) {
-                        catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                            dir('frontend') {
-                                echo "Running frontend tests with coverage..."
-                                bat 'npm run test:coverage || exit 0'
-                                bat 'if not exist coverage mkdir coverage'
-                            }
+                        dir('frontend') {
+                            echo "Preparing coverage folder..."
+                            sh 'rm -rf coverage && mkdir coverage'
+
+                            echo "Running frontend tests with coverage..."
+                            sh 'npm run test:coverage || true'
                         }
                     }
                 }
@@ -96,63 +88,78 @@ pipeline {
         }
 
         // ------------------------------
-        // 4. Staging Stage (Run Services & Integration Tests)
+        // 4. Staging & Cypress
         // ------------------------------
         stage('Staging Deployment & Cypress Tests') {
             steps {
                 script {
+
+                    // ---- Start backend ----
                     echo "Starting backend in dev mode..."
                     dir('backend') {
-                        bat 'start "" cmd /c "npm run dev"'
+                        sh 'nohup npm run dev > backend.log 2>&1 &'
                     }
 
-                    echo "Setting frontend environment variables for staging..."
+                    // ---- Setup frontend ENV & start ----
+                    echo "Setting frontend environment variables..."
                     dir('frontend') {
-                        bat """
+                        sh '''
                         echo VITE_FILE_BASE_URL=http://localhost:8888/ > .env
                         echo VITE_BACKEND_SERVER=http://localhost:8888/ >> .env
                         echo PROD=false >> .env
-                        """
+                        '''
+
                         echo "Starting frontend in dev mode..."
-                        bat 'start "" cmd /c "npm run dev"'
+                        sh 'nohup npm run dev > frontend.log 2>&1 &'
                     }
 
-                    echo "Waiting for backend (port 8888) to be ready..."
-                    bat 'powershell -Command "$p=8888; while(-not (Test-NetConnection -Port $p -ComputerName localhost).TcpTestSucceeded) { Start-Sleep 1 }"'
+                    // ---- Wait for backend ----
+                    echo "Waiting for backend on port 8888..."
+                    sh '''
+                    while ! nc -z localhost 8888; do
+                        echo "Waiting for backend..."
+                        sleep 1
+                    done
+                    '''
 
-                    echo "Waiting for frontend (port 3000) to be ready..."
-                    bat 'powershell -Command "$p=3000; while(-not (Test-NetConnection -Port $p -ComputerName localhost).TcpTestSucceeded) { Start-Sleep 1 }"'
+                    // ---- Wait for frontend ----
+                    echo "Waiting for frontend on port 3000..."
+                    sh '''
+                    while ! nc -z localhost 3000; do
+                        echo "Waiting for frontend..."
+                        sleep 1
+                    done
+                    '''
 
-                    echo "Running Cypress tests against staging..."
-                    bat 'npx cypress run || exit 0'
+                    // ---- Run Cypress ----
+                    echo "Running Cypress tests..."
+                    sh 'npx cypress run || true'
                 }
             }
         }
 
         // ------------------------------
-        // 5. Archive Build Artifacts
+        // 5. Archive Artifacts
         // ------------------------------
         stage('Archive Build Artifacts') {
             steps {
-                echo "Archiving frontend build artifacts..."
+                echo "Archiving artifacts..."
+
                 archiveArtifacts artifacts: 'frontend/dist/**/*', allowEmptyArchive: true
-
-                echo "Archiving frontend coverage reports..."
                 archiveArtifacts artifacts: 'frontend/coverage/**/*', allowEmptyArchive: true
-
-                echo "Archiving backend artifacts..."
                 archiveArtifacts artifacts: 'backend/**/*', allowEmptyArchive: true
-
-                echo "Archiving backend coverage reports..."
                 archiveArtifacts artifacts: 'backend/coverage/**/*', allowEmptyArchive: true
             }
         }
     }
 
+    // ------------------------------
+    // POST ACTIONS
+    // ------------------------------
     post {
         always {
-            echo "Stopping all Node.js processes..."
-            bat 'taskkill /F /IM node.exe /T || exit 0'
+            echo "Stopping all node processes..."
+            sh 'pkill node || true'
 
             echo "Archiving Cypress artifacts..."
             archiveArtifacts artifacts: 'cypress/screenshots/**/*.png', allowEmptyArchive: true
