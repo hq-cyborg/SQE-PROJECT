@@ -12,9 +12,11 @@
     "setup": "node src/setup/setup.js",
     "upgrade": "node src/setup/upgrade.js",
     "reset": "node src/setup/reset.js",
-    "test": "jest"
+    "test": "jest",
+    "lint": "eslint . --ext js,jsx",
+    "prettier:check": "prettier --check '**/*.{js,jsx,json,css,md}'",
+    "prettier:fix": "prettier --write '**/*.{js,jsx,json,css,md}'"
   },
-  
   "dependencies": {
     "@aws-sdk/client-s3": "^3.509.0",
     "bcryptjs": "^2.4.3",
@@ -46,8 +48,12 @@
   "devDependencies": {
     "@babel/preset-env": "^7.28.5",
     "babel-jest": "^30.2.0",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-react": "^7.33.2",
     "jest": "^30.2.0",
     "nodemon": "3.0.1",
+    "prettier": "3.1.0",
     "supertest": "^7.1.4"
   },
   "_moduleAliases": {
