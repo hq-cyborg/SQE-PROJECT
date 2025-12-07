@@ -47,6 +47,25 @@ pipeline {
             }
         }
 
+        stage('SonarCloud Analysis') {
+            environment {
+                SONAR_TOKEN = credentials('SONARCLOUD_TOKEN') // Jenkins secret text credential
+            }
+            steps {
+                dir('frontend') {
+                    echo "Running SonarCloud analysis..."
+                    bat """
+                    sonar-scanner ^
+                    -Dsonar.projectKey=hq-cyborg_SQE-PROJECT ^
+                    -Dsonar.organization=hq-cyborg ^
+                    -Dsonar.host.url=https://sonarcloud.io ^
+                    -Dsonar.login=%SONAR_TOKEN%
+                    """
+                }
+            }
+        }
+
+
         stage('Backend Security Audit') {
             steps {
                 dir('backend') {
