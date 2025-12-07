@@ -1,5 +1,4 @@
 const Joi = require('joi');
-
 const mongoose = require('mongoose');
 
 const checkAndCorrectURL = require('./checkAndCorrectURL');
@@ -33,15 +32,16 @@ const forgetPassword = async (req, res, { userModel }) => {
   }
 
   const user = await User.findOne({ email: email, removed: false });
-  const databasePassword = await UserPassword.findOne({ user: user._id, removed: false });
 
-  // console.log(user);
+  // ✅ Move null check before accessing user._id
   if (!user)
     return res.status(404).json({
       success: false,
       result: null,
       message: 'No account with this email has been registered.',
     });
+
+  const databasePassword = await UserPassword.findOne({ user: user._id, removed: false });
 
   const resetToken = shortid.generate();
   await UserPassword.findOneAndUpdate(

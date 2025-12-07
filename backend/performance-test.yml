@@ -1,12 +1,221 @@
 config:
-  target: "https://sqe-project-production.up.railway.app"  # Your backend URL
-
-
+  target: "https://sqe-project-production.up.railway.app"
+  processor: "./processor.js"
   phases:
-    - duration: 60       # Test for 60 seconds
-      arrivalRate: 5     # 5 new users per second
+    - duration: 120       # 2 minutes test
+      arrivalRate: 5      # 5 new users/sec
 
 scenarios:
   - flow:
+
+      # ---------------- AUTH ----------------
+      - post:
+          url: "/api/login"
+          json:
+            email: "admin@admin.com"
+            password: "admin123"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+
+      - post:
+          url: "/api/forgot-password"
+          json:
+            email: "admin@admin.com"
+
+      - post:
+          url: "/api/reset-password"
+          json:
+            token: "valid-reset-token"
+            password: "newStrongPass123"
+
+      - post:
+          url: "/api/logout"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+
+      # ---------------- ADMIN ----------------
       - get:
-          url: "/api/users"   # Endpoint to test
+          url: "/admin/read/12345"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+
+      - patch:
+          url: "/admin/password-update/12345"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            oldPassword: "admin123"
+            newPassword: "newPass123"
+
+      - patch:
+          url: "/admin/profile/password"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            oldPassword: "admin123"
+            newPassword: "newPass123"
+
+      - patch:
+          url: "/admin/profile/update"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          formData:
+            photo: "tests/files/sample-image.png"
+
+      # ---------------- SETTING ----------------
+      - post:
+          url: "/setting/create"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            name: "Test Setting"
+            key: "testKey"
+            value: "testValue"
+
+      - get:
+          url: "/setting/read/12345"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+
+      - patch:
+          url: "/setting/update/12345"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            value: "updatedValue"
+
+      - get:
+          url: "/setting/search?query=test"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+
+      - get:
+          url: "/setting/listAll"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+
+      - patch:
+          url: "/setting/upload/testKey"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          formData:
+            settingValue: "tests/files/sample-image.png"
+
+      # ---------------- INVOICE ----------------
+      - post:
+          url: "/invoice/create"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            client: "clientId123"
+            admin: "adminId123"
+            items:
+              - name: "Service A"
+                quantity: 2
+                price: 100
+            tax: 10
+            invoiceNumber: "INV-001"
+            date: "2025-12-07"
+
+      - get:
+          url: "/invoice/listAll"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+
+      - get:
+          url: "/invoice/read/12345"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+
+      - patch:
+          url: "/invoice/update/12345"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            items:
+              - name: "Service B"
+                quantity: 1
+                price: 150
+
+      - delete:
+          url: "/invoice/delete/12345"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+
+      - get:
+          url: "/invoice/search?query=test"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+
+      - get:
+          url: "/invoice/summary"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+
+      # ---------------- PAYMENT ----------------
+      - post:
+          url: "/payment/create"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            client: "clientId123"
+            admin: "adminId123"
+            invoice: "invoiceId123"
+            paymentMode: "cash"
+            amount: 250
+            description: "Test payment"
+
+      - patch:
+          url: "/payment/update/12345"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            amount: 300
+
+      - delete:
+          url: "/payment/delete/12345"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+
+      - get:
+          url: "/payment/listAll"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+
+      - get:
+          url: "/payment/search?query=test"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+
+      - get:
+          url: "/payment/filter"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+
+      # ---------------- UPLOAD ----------------
+      - post:
+          url: "/upload/create"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            modelName: "testModel"
+            fieldId: "field123"
+            fileName: "sample.txt"
+            fileType: "text"
+            isPublic: true
+            userID: "adminId123"
+            isSecure: false
+            path: "/uploads/sample.txt"
+
+      - patch:
+          url: "/upload/update/12345"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            isPublic: false
+
+      - get:
+          url: "/upload/read/12345"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
