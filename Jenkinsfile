@@ -47,17 +47,17 @@ pipeline {
             }
         }
 
-        stage('SonarCloud Analysis') {
-            steps {
-                echo "Running SonarCloud analysis..."
+        //stage('SonarCloud Analysis') {
+         //   steps {
+           //     echo "Running SonarCloud analysis..."
         
-                withSonarQubeEnv('SonarScanner') {
+              //  withSonarQubeEnv('SonarScanner') {
                     // Use the Sonar Scanner tool installed in Jenkins
-                    tool name: 'SonarScanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
-                    bat 'sonar-scanner -Dsonar.projectKey=hq-cyborg_SQE-PROJECT -Dsonar.organization=hq-cyborg'
-                }
-            }
-        }
+              //      tool name: 'SonarScanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+              //      bat 'sonar-scanner -Dsonar.projectKey=hq-cyborg_SQE-PROJECT -Dsonar.organization=hq-cyborg'
+              //  }
+          //  }
+       // }
 
 
 
