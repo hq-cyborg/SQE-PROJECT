@@ -50,13 +50,15 @@ pipeline {
         stage('SonarCloud Analysis') {
             steps {
                 echo "Running SonarCloud analysis..."
-
-                // This uses the plugin and your server configuration
+        
                 withSonarQubeEnv('SonarCloud') {
+                    // Use the Sonar Scanner tool installed in Jenkins
+                    tool name: 'SonarScanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
                     bat 'sonar-scanner -Dsonar.projectKey=hq-cyborg_SQE-PROJECT -Dsonar.organization=hq-cyborg'
                 }
             }
         }
+
 
 
 
