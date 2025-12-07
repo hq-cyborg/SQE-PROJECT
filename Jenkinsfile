@@ -78,6 +78,22 @@ pipeline {
             }
         }
 
+        // Performance Testing Stage (Artillery)
+        // ------------------------------
+        stage('Performance Testing (Artillery)') {
+            steps {
+                echo "Running Artillery performance tests..."
+
+                dir('backend') {
+                // Run Artillery and output report.json
+                    bat 'artillery run performance-test.yml --output report.json || exit 0'
+                }
+
+                // Archive the performance report
+                archiveArtifacts artifacts: 'report.json', allowEmptyArchive: true
+            }
+        }
+
         stage('Run Frontend Unit Tests') {
             steps {
                 script {
