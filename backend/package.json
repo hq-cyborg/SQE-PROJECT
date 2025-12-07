@@ -49,6 +49,7 @@
   },
   "devDependencies": {
     "@babel/preset-env": "^7.28.5",
+    "artillery-plugin-html-report": "^2.0.0",
     "babel-jest": "^30.2.0",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.0.0",
