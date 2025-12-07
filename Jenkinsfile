@@ -49,16 +49,15 @@ pipeline {
 
         stage('SonarCloud Analysis') {
             steps {
-                dir('frontend') {
-                    echo "Running SonarCloud analysis..."
-            
-                    // This uses the plugin and your server configuration
-                    withSonarQubeEnv('SonarCloud') {
-                        bat 'sonar-scanner -Dsonar.projectKey=hq-cyborg_SQE-PROJECT -Dsonar.organization=hq-cyborg'
-                    }
+                echo "Running SonarCloud analysis..."
+
+                // This uses the plugin and your server configuration
+                withSonarQubeEnv('SonarCloud') {
+                    bat 'sonar-scanner -Dsonar.projectKey=hq-cyborg_SQE-PROJECT -Dsonar.organization=hq-cyborg'
                 }
             }
         }
+
 
 
 
