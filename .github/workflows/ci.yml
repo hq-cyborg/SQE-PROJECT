@@ -138,6 +138,27 @@ jobs:
           name: backend-coverage
           path: backend/coverage
 
+
+      # ------------------------------
+      # PERFORMANCE TEST SECTION
+      # ------------------------------
+
+      - name: Install Artillery
+        run: npm install -g artillery
+
+      - name: Run Performance Test
+        working-directory: backend
+        run: |
+          mkdir -p performance-reports
+          artillery run performance-test.yml -o performance-reports/report.json
+
+      - name: Upload Performance Test Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-report
+          path: backend/performance-reports/report.json
+
+
   # ------------------------------------------------------
   # 4. Staging Stage (Final Testing & Validation)
   # ------------------------------------------------------
