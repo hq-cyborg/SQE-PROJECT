@@ -1,0 +1,12 @@
+config:
+  target: "https://sqe-project-production.up.railway.app"  # Your backend URL
+
+
+  phases:
+    - duration: 60       # Test for 60 seconds
+      arrivalRate: 5     # 5 new users per second
+
+scenarios:
+  - flow:
+      - get:
+          url: "/api/users"   # Endpoint to test
